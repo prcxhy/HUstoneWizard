@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="./src/styles.css">
+  <title>HUstoneWizard</title>
+</head>
+<body>
+  <div id="func_bar">
+    <button class="add_but" id="gohome"><img src="./src/assets/home.svg"></button>
+    <input type="text" id="search">
+    <div id="search_modes" class="func_bar_button_group">
+      <input type="checkbox" id="modes">
+      <label for="modes" class="add_but" id="modes_label"><img src="./src/assets/place.svg"></label>
+    </div>
+    <div id="additions" class="func_bar_button_group">
+      <input type="checkbox" id="more">
+      <label for="more" class="add_but" id="more_label"><img src="./src/assets/more.svg"></label>
+      <button class="add_but" id="save"><img src="./src/assets/submit.svg"></button>
+      <button class="add_but" id="cancel"><img src="./src/assets/cancel.svg"></button>
+    </div>
+  </div>
+  <div id="modes_selections" class="more_panel">
+    <input type="radio" name="modes" id="place" checked>
+    <label for="place" class="selections"><img src="/src/assets/place.svg">地名</label>
+    <input type="radio" name="modes" id="location">
+    <label for="location" class="selections"><img src="/src/assets/location.svg">坐标</label>
+    <input type="radio" name="modes" id="rsrc_info">
+    <label for="rsrc_info" class="selections"><img src="/src/assets/chest.svg">物资</label>
+  </div>
+  <div id="more_buttons" class="more_panel">   
+    <div id="edit" class="selections">
+      <img src="./src/assets/edit.svg">
+      <label>编辑</label>
+    </div>
+    <div id="create" class="selections">
+      <img src="./src/assets/add.svg">
+      <label>新建</label>
+    </div>
+  </div>
+  <div id="search_result"></div>
+  <div id="content">
+    <div id="homepage">
+      <div id="place_card">
+        <div id="preview">
+          <img src="./src/assets/HUstone.svg">
+        </div>
+        <div id="card_info">
+          <button id="list"><img src="./src/assets/list.svg"></button>
+          <button id="refresh"><img src="./src/assets/refresh.svg"></button>
+          <p id="card_name">点击🔁抽一张地点卡👉</p>
+        </div>
+      </div>
+      <div id="place_list">
+        <div class="dim_picker">
+          <input type="radio" name="list_dim" value="overworld" id="list_ov" checked>
+          <label for="list_ov" class="imgLabel"><img src="./src/assets/overworld.svg" width="24"></label>
+          <input type="radio" name="list_dim" value="nether" id="list_nt">
+          <label for="list_nt" class="imgLabel"><img src="./src/assets/nether.svg" width="24"></label>
+          <input type="radio" name="list_dim" value="theEnd" id="list_end">
+          <label for="list_end" class="imgLabel"><img src="./src/assets/theEnd.svg" width="24"></label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <img src="./src/assets/overworld.svg" class="assets">
+  <img src="./src/assets/nether.svg" class="assets">
+  <img src="./src/assets/theEnd.svg" class="assets">
+  <img src="./src/assets/portal.webp" class="assets">
+</body>
+<script type="module" src="./src/main.ts"></script>
+</html>
