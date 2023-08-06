@@ -1,11 +1,16 @@
+import {join} from '@tauri-apps/api/path';
 import {exists, writeTextFile, createDir, BaseDirectory, removeFile, readDir, readTextFile} from '@tauri-apps/api/fs';
 
-const DIR = 'HUstoneWizard\\places';
+const DIR = await join('HUstoneWizard', 'places');
 
 function saveFiles(place: {[key: string]: any}, fromPlace: {[key: string]: any} | null) {
-    writeTextFile(DIR + '\\' + place['name'] + '.json', JSON.stringify(place, null, 2), {dir: BaseDirectory.Document});
+    join(DIR, place['name'] + '.json').then((newPlace) => {
+        writeTextFile(newPlace, JSON.stringify(place, null, 2), {dir: BaseDirectory.Document});
+    });
     if(fromPlace != null) {
-        removeFile(DIR + '\\' + fromPlace['name'] + '.json', {dir: BaseDirectory.Document});
+        join(DIR, fromPlace['name'] + '.json').then((place2BeRemoved) => {
+            removeFile(place2BeRemoved, {dir: BaseDirectory.Document});
+        });
     }
 }
 

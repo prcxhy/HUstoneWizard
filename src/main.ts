@@ -662,17 +662,21 @@ function savePlaces() {
             }
         }
         if(placeShowing['parent'] != place['parent'] || name.value != placeShowing['name']) {
-            let parentPast = mapPast?.get(placeShowing['parent']);
-            let brothers = parentPast['children'] == ''? []: parentPast['children'] as string[];
-            brothers.splice(brothers.indexOf(placeShowing['name']), 1);
-            parentPast['children'] = brothers;
-            saveFiles(parentPast, null);
+            if(placeShowing['parent'] != '') {
+                let parentPast = mapPast?.get(placeShowing['parent']);
+                let brothers = parentPast['children'] == ''? []: parentPast['children'] as string[];
+                brothers.splice(brothers.indexOf(placeShowing['name']), 1);
+                parentPast['children'] = brothers;
+                saveFiles(parentPast, null);
+            }
         }
         if(placeShowing['opposite'] != place['opposite'] || name.value != placeShowing['name']) {
-            let oppositeMap = dimPast == 'overworld'? getMap('nether'): getMap('overworld');
-            let opposite = oppositeMap?.get(placeShowing['opposite']);
-            opposite['opposite'] = '';
-            saveFiles(opposite, null);
+            if(placeShowing['opposite'] != '') {
+                let oppositeMap = dimPast == 'overworld'? getMap('nether'): getMap('overworld');
+                let opposite = oppositeMap?.get(placeShowing['opposite']);
+                opposite['opposite'] = '';
+                saveFiles(opposite, null);
+            }
         }
     }
     if(place['parent'] != '') {
