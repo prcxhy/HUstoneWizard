@@ -234,8 +234,9 @@ input[type='text']:focus, input[type='number']:focus,  textarea:focus {
 #content {
   background-color: rgb(240, 240, 240);
   position: absolute;
-  /* top: 1.3cm; */
-  height: 100%;
+  top: 1.3cm;
+  /* height: 100%; */
+  bottom: 0cm;
   width: 100%;
   overflow-y: auto;
 }
@@ -333,7 +334,7 @@ input[type='text']:focus, input[type='number']:focus,  textarea:focus {
   width: 100%;
   display: none;
   flex-direction: column;
-  padding: 1.3cm 1cm 1cm 1cm;
+  padding: 0cm 1cm 1cm 1cm;
 }
 
 #place_list .dim_picker {
@@ -350,7 +351,7 @@ input[type='text']:focus, input[type='number']:focus,  textarea:focus {
   display: flex;
   flex-direction: column;
   background-color: rgb(181, 213, 229);
-  padding: 2.3cm 1cm 1cm 1cm;
+  padding: 1cm 1cm 1cm 1cm;
 }
 
 .infoPanel {
@@ -453,8 +454,7 @@ input[type='text']:focus, input[type='number']:focus,  textarea:focus {
 #info_page {
   display: flex;
   flex-direction: column;
-  padding: 2.3cm 1cm 1cm 1cm;
-  top: 1.3cm;
+  padding: 1cm 1cm 1cm 1cm;
 }
 
 #info_page > div {
