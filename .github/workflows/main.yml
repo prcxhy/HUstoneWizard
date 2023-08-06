@@ -26,11 +26,7 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v2
         with:
-          version: 8
-          run_install: |
-            - recursive: true
-              args: [--frozen-lockfile, --strict-peer-dependencies]
-            - args: [--global, gulp, prettier, typescript]
+          version: 7
           
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
@@ -46,10 +42,11 @@ jobs:
         
       - uses: tauri-apps/tauri-action@v0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE }}
         with:
           tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
           releaseName: 'App v__VERSION__'
           releaseBody: 'See the assets to download this version and install.'
           releaseDraft: true
           prerelease: false
+
