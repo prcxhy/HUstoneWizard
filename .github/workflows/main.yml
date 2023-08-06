@@ -20,6 +20,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v2.2.1
+        with:
+          version: ^7.0
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
       - name: install dependencies (ubuntu only)
