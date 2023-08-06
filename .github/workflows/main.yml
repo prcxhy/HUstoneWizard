@@ -26,11 +26,11 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v2
         with:
-          version: 8
-          run_install: |
-            - recursive: true
-              args: [--frozen-lockfile, --strict-peer-dependencies]
-            - args: [--global, gulp, prettier, typescript]
+          version: 7
+          # run_install: |
+          #   - recursive: true
+          #     args: [--frozen-lockfile, --strict-peer-dependencies]
+          #   - args: [--global, gulp, prettier, typescript]
           
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
