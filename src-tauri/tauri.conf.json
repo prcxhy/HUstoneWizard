@@ -40,7 +40,7 @@
     },
     "bundle": {
       "active": true,
-      "targets": ["appimage", "deb", "nsis"],
+      "targets": "all",
       "identifier": "com.hustone.wizard",
       "icon": [
         "icons/32x32.png",
