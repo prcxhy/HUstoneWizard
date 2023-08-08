@@ -1,11 +1,11 @@
 # HUstoneWizard
 ### 萌新向导（旧称）重置版
 一个MINECRAFT服务器地图内地点记录存档与浏览的小工具
-## 佛系更新预告(ToDoList)
-- UI优化
-- 恢复图片展示功能
 
 ## 更新日志
+### 2.0.0
+- UI优化
+- 恢复了图片展示功能，手动将与地点同名的 .png 图片保存到"HUstoneWizard/images/"下
 ### 1.2.3 (beta)
 - 适配linux和macos
 ### 1.2.2 (beta)

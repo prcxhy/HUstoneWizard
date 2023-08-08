@@ -1,0 +1,157 @@
+#info_page {
+    display: flex;
+    flex-direction: column;
+    padding: 1cm 1cm 1cm 1cm;
+}
+  
+#info_page > div {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 5mm;
+    padding: 5mm 8mm;
+    border-radius: 2.4mm;
+    box-shadow: 0px 0px 10px 0 rgba(0, 0, 0, 0.1);
+}
+
+#info_page > div > p {
+    margin: 0mm 0mm 4mm 0mm;
+}
+
+#info_page > div > h3, #info_page > div > h4 {
+    margin: 2mm 0mm 2mm 0mm;
+}
+
+.info_row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    vertical-align: middle;
+    margin-bottom: 2mm;
+    padding: 0mm;
+}
+
+.info_row > p {
+    margin: 0mm 2mm 0mm 0mm;
+}
+
+.info_row > img {
+    margin: auto 0mm;
+    margin-right: 2mm;
+}
+
+.info_row > h2, .info_row > h4 {
+    margin: auto 0mm;
+}
+
+.info_row > h3, .info_row > h1 {
+    margin: auto 0mm;
+    margin-right: 8mm;
+}
+
+.info_row > button {
+    font-size: 4mm;
+    font-weight: bold;
+    height: 8mm;
+    margin: 1mm 0mm 1mm 2mm;
+    border-width: 0px;
+    border-radius: 1.2mm;
+    user-select: none;
+    cursor: pointer;
+}
+
+.overworld_page > div {
+    background-color: rgb(240, 240, 240);
+    border-color: rgb(87, 174, 87);
+    border-width: 1mm;
+    border-style: solid;
+}
+
+.overworld_page p {
+    color: rgb(66, 55, 45);
+}
+
+.overworld_page h1, .overworld_page h3, .overworld_page h4 {
+    color: rgb(23, 67, 143);
+}
+
+.overworld_page h2 {
+    color: rgb(14, 90, 14);
+}
+
+.overworld_page button {
+    background-color: rgba(23, 67, 143, 0.1);
+    color: rgb(23, 67, 143);
+}
+
+.overworld_page button:hover {
+    background-color: rgba(23, 67, 143, 0.2);
+}
+
+.nether_page ::selection {
+    background-color: rgb(62, 194, 194);
+    color: rgb(178, 109, 243);
+}
+
+.nether_page > div {
+    background-color: rgb(41, 24, 24);
+    border-color: rgb(255, 162, 0);
+    border-width: 1mm;
+    border-style: solid;
+}
+
+.nether_page p {
+    color: rgb(255, 238, 128);
+    /* color: rgb(225, 195, 0); */
+}
+
+.nether_page h1, .nether_page h3, .nether_page h4 {
+    color: rgb(255, 168, 96);
+}
+
+.nether_page h2 {
+    color: rgb(168, 80, 80);
+}
+
+.nether_page button {
+    background-color: rgba(87, 45, 45, 0.5);
+    color: rgb(255, 238, 128);
+}
+
+.nether_page button:hover {
+    background-color: rgb(87, 45, 45);
+}
+
+.theEnd_page ::selection {
+    background-color: rgb(0, 0, 0);
+    color: rgb(28, 163, 193);
+}
+
+.theEnd_page > div {
+    background-color: rgb(228, 237, 170);
+    border-color: rgb(162, 167, 125);
+    border-width: 1mm;
+    border-style: solid;
+}
+
+.theEnd_page p {
+    color: rgb(160, 70, 182);
+}
+
+.theEnd_page h1, .theEnd_page h3, .theEnd_page h4 {
+    color: rgb(52, 0, 84);
+}
+
+.theEnd_page h2 {
+    color: rgb(74, 0, 121);
+}
+
+.theEnd_page button {
+    background-color: rgba(160, 70, 182, 0.2);
+    color: rgb(160, 70, 182);
+}
+
+.theEnd_page button:hover {
+    background-color: rgba(160, 70, 182, 0.4);
+}
+  

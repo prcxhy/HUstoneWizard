@@ -1,0 +1,136 @@
+#info_page_with_img {
+    position: absolute;
+    background-color: rgb(240, 240, 240);
+    display: flex;
+    flex-direction: row;
+    border-radius: 1.2mm;
+    bottom: 2mm;
+    left: 2mm;
+    right: 2mm;
+    height: 4.9cm;
+    overflow: hidden;
+    box-shadow: 0px 0px 10px 0 rgba(0, 0, 0, 0.25);
+    transition: 0.2s;
+}
+
+#info_page_with_img > div {
+    flex-wrap: wrap;
+    background-color: transparent;
+    border-width: 0mm;
+    display: flex;
+    flex-direction: column;
+    padding: 3mm 7mm;
+    width: 100%;
+}
+
+#info_page_with_img > .picker {
+    background-color: rgba(0, 57, 86, 0.1);
+    flex-wrap: nowrap;
+    padding: 2mm;
+    margin: 0mm;
+    border-radius: 1.2mm 1.2mm 0mm 0mm;
+    width: 9mm;
+}
+
+#info_page_with_img > .picker > .imgLabel {
+    width: 9mm;
+    height: 9mm;
+    margin: 0mm;
+}
+
+#info_page_with_img .info_row {
+    padding: 0mm;
+    margin-bottom: 2mm;
+    margin-right: 2mm;
+    width: max(7cm, 50%);
+}
+
+#info_page_with_img > div > h3 {
+    margin-top: 0mm;
+    margin-bottom: 2mm;
+}
+
+#info_page_with_img h1 {
+    width: 100%;
+    margin: 0mm 0mm 2mm 0mm;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#info_page_with_img .info_row + p {
+    display: flex;
+    width: min(50%, 100% - 7cm);
+    margin: 2mm 2mm;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+#info_page_with_img .info_row > h4 {
+    margin-left: 3mm;
+}
+
+#info_page_with_img > div > p {
+    margin: 0mm 0mm 0mm 5mm;
+}
+
+#info_page_with_img[class="nether_page"],
+#info_page_with_img[class="nether_page"] > .picker > .imgLabel:active {
+    background-color: rgb(254, 242, 242);
+}
+
+#info_page_with_img[class="nether_page"] > .picker > .imgLabel > img {
+    filter: hue-rotate(120deg);
+}
+
+#info_page_with_img[class="nether_page"] > .picker > .imgLabel:hover {
+    background-color: rgba(254, 242, 242, 0.5);
+}
+ 
+#info_page_with_img[class="nether_page"] > .picker {
+    background-color: rgb(254, 223, 223);
+}
+
+#info_page_with_img[class="nether_page"] h1,
+#info_page_with_img[class="nether_page"] h3,
+#info_page_with_img[class="nether_page"] h4 {
+    color: rgb(87, 45, 45);
+}
+
+#info_page_with_img[class="nether_page"] p,
+#info_page_with_img[class="nether_page"] button {
+    color: rgb(180, 97, 97);
+}
+
+#info_page_with_img[class="nether_page"] button {
+    background-color: rgba(254, 223, 223, 0.5);   
+}
+
+#info_page_with_img[class="nether_page"] button:hover {
+    background-color: rgb(254, 223, 223);
+}
+
+#info_page_with_img[class="theEnd_page"],
+#info_page_with_img[class="theEnd_page"] > .picker > .imgLabel:active {
+    background-color: rgb(250, 242, 255);
+}
+
+#info_page_with_img[class="theEnd_page"] > .picker > .imgLabel > img {
+    filter: hue-rotate(50deg);
+}
+
+#info_page_with_img[class="theEnd_page"] > .picker > .imgLabel:hover {
+    background-color: rgba(250, 242, 255, 0.5);
+}
+ 
+#info_page_with_img[class="theEnd_page"] > .picker {
+    background-color: rgb(243, 223, 255);
+}
+
+#info_page_with_img[class="theEnd_page"] button {
+    background-color: rgba(243, 223, 255, 0.5);
+}
+
+#info_page_with_img[class="theEnd_page"] button:hover {
+    background-color: rgb(243, 223, 255);
+}

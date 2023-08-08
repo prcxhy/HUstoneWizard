@@ -1,4 +1,4 @@
-import {saveFiles, loadPlaces} from './files.js';
+import {saveFiles, loadPlaces, setBackPic} from './files.js';
 
 var gohome = document.getElementById('gohome') as HTMLButtonElement;
 var search = document.getElementById('search') as HTMLInputElement;
@@ -29,25 +29,41 @@ var SEARCH_RADIUS = 64;
 
 function getAssetsImage(name: string) {
     let img: HTMLImageElement;
-    if(name == 'overworld') {
-        img = document.getElementsByClassName('assets')[0].cloneNode() as HTMLImageElement;
-    } else if(name == 'nether') {
-        img = document.getElementsByClassName('assets')[1].cloneNode() as HTMLImageElement;
-    } else if(name == 'theEnd') {
-        img = document.getElementsByClassName('assets')[2].cloneNode() as HTMLImageElement;
-    } else {
-        img = document.getElementsByClassName('assets')[3].cloneNode() as HTMLImageElement;
+    switch(name) {
+        case 'overworld':
+            img = document.getElementsByClassName('assets')[0].cloneNode() as HTMLImageElement;
+            break;
+        case 'nether':
+            img = document.getElementsByClassName('assets')[1].cloneNode() as HTMLImageElement;
+            break;
+        case 'theEnd':
+            img = document.getElementsByClassName('assets')[2].cloneNode() as HTMLImageElement;
+            break;
+        case 'portal':
+            img = document.getElementsByClassName('assets')[3].cloneNode() as HTMLImageElement;
+            break;
+        case 'local':
+            img = document.getElementsByClassName('assets')[4].cloneNode() as HTMLImageElement;
+            break;
+        case 'link':
+            img = document.getElementsByClassName('assets')[5].cloneNode() as HTMLImageElement;
+            break;
+        case 'chest':
+            img = document.getElementsByClassName('assets')[6].cloneNode() as HTMLImageElement;
+            break;
+        case 'info':
+            img = document.getElementsByClassName('assets')[7].cloneNode() as HTMLImageElement;
+            break;
+        case 'user':
+            img = document.getElementsByClassName('assets')[8].cloneNode() as HTMLImageElement;
+            break;
+        default:
+            img = document.getElementsByClassName('assets')[9].cloneNode() as HTMLImageElement;
+            break;      
     }
     img.className = '';
     return img;
 }
-
-// HOMEPAGE.id = 'homepage';
-// let logo = document.createElement('img');
-// logo.src = './src/assets/HUstone.svg';
-// HOMEPAGE.appendChild(logo);
-
-// content.appendChild(HOMEPAGE);
 
 function getMap(dim: string) {
     let map;
@@ -61,6 +77,51 @@ function getMap(dim: string) {
         default: map = OVERWORLD_PLACES;
     }
     return map;
+}
+
+function getPicker(name: string, callbackfns: (() => void)[], labelImg: HTMLImageElement[]) {
+    let picker = document.createElement('div');
+    picker.className = 'picker';
+    callbackfns.forEach((fn, i) => {
+        let label = document.createElement('label');
+        let input = document.createElement('input');
+        input.type = 'radio';
+        input.id = name + '_' + i;
+        input.name = name;
+        input.checked = i == 0? true: false;
+        label.className = 'imgLabel';
+        label.setAttribute('for', input.id);
+        label.append(labelImg[i]);
+        labelImg[i].width = 24;
+        labelImg[i].height = 24;
+        input.onchange = () => {
+            if(input.checked) {
+                fn();
+            }
+        }
+        picker.append(input, label);
+    });
+    picker.onwheel = (event) => {
+        let index = -1;
+        let selections = document.getElementsByName(name);
+        selections.forEach((item, i) => {
+            if((item as HTMLInputElement).checked) {
+                index = i;
+            }
+        });
+        if(event.deltaY > 0 && index != selections.length - 1) {
+            (selections[index] as HTMLInputElement).checked = false;
+            (selections[index + 1] as HTMLInputElement).checked = true;
+            selections[index + 1].dispatchEvent(new Event('change'));
+        }
+        if(event.deltaY < 0 && index != 0) {
+            (selections[index] as HTMLInputElement).checked = false;
+            (selections[index - 1] as HTMLInputElement).checked = true;
+            selections[index - 1].dispatchEvent(new Event('change'));
+        }
+        event.stopPropagation();
+    };
+    return picker;
 }
 
 function createEditPage() {
@@ -100,7 +161,7 @@ function createEditPage() {
     let dimension = document.createElement('div');
     let dimPicker = document.createElement('div');
     let dimName = document.createElement('p');
-    dimPicker.className = 'dim_picker';
+    dimPicker.className = 'picker';
     dimension.id = 'dimension';
     dimName.innerText = '主世界';
 
@@ -341,6 +402,9 @@ function createEditPage() {
     // 页面组装
     page.append(basicInfo, rlt, rsc, dtl, ply);
     // 页面添加
+    content.style.overflowY = 'auto';
+    content.style.backgroundColor = "rgb(181, 213, 229)";
+    content.style.backgroundImage = '';
     content.replaceChildren(page);
 }
 
@@ -425,159 +489,221 @@ function createAnchor(place: {[key: string]: any}) {
     return anchor;
 }
 
+function createInfoPage(place: {[key: string]: any}) {
+    let d = place['dimension'];
+    let map = getMap(d);
+    
+    let page = document.createElement('div');
+    
+    let basicInfo = document.createElement('div');
+    let related = document.createElement('div');
+    let resources = document.createElement('div');
+    let details = document.createElement('div');
+    let players = document.createElement('div');
+    
+    let nameAndDimension = document.createElement('div');
+    let coordinate = document.createElement('div');
+    let dimAddition = document.createElement('div');
+    
+    let name = document.createElement('h1');
+    name.innerText = place['name'];
+    let dimension = document.createElement('h2');
+    if(d == 'overworld') {
+        dimension.innerText = '主世界';
+        content.style.backgroundColor = 'rgb(117, 99, 80)';
+    }
+    if(d == 'nether') {
+        dimension.innerText = '下界';
+        content.style.backgroundColor = 'rgb(87, 45, 45)';
+    
+    }
+    if(d == 'theEnd') {
+        dimension.innerText = '末地';
+        dimAddition.style.display = 'none'
+        content.style.backgroundColor = 'rgb(35, 0, 57)';
+    
+    }
+    let dimLabel = getAssetsImage(d);
+    dimLabel.width = 24;
+    dimLabel.height = 24;
+    let xLabel = document.createElement('p');
+    let yLabel = document.createElement('p');
+    let zLabel = document.createElement('p');
+    xLabel.innerText = 'x';
+    yLabel.innerText = 'y';
+    zLabel.innerText = 'z';
+    let x = document.createElement('h3');
+    let y = document.createElement('h3');
+    let z = document.createElement('h3');
+    x.innerText = place['x'];
+    y.innerText = place['y'];
+    z.innerText = place['z'];
+    let portalImg = getAssetsImage('portal');
+    let portalType = document.createElement('h3');
+    portalImg.width = 16;
+    if(place['portal'] == '') {
+        portalType.innerText = '无下界传送门';
+        portalType.style.color = 'rgb(128, 128, 128)';
+    }
+    if(place['portal'] == 'func') {
+        portalType.innerText = '工业用门，禁止通行';
+        portalType.style.color = 'rgb(168, 80, 80)';
+    }
+    if(place['portal'] == 'pass') {
+        portalType.innerText = '下界传送门通行专用';
+        portalType.style.color = 'rgb(87, 174, 87)';
+    }
+    if(place['portal'] == 'both') {
+        portalType.innerText = '有门但不要走错';           
+        portalType.style.color = 'rgb(225, 195, 0)'
+    }
+    let intro = document.createElement('p');
+    intro.innerText = place['introduction'];
+    
+    let rltTitle = document.createElement('h3');
+    let oppTitle = document.createElement('h4');
+    let prtTitle = document.createElement('h4');
+    let chlTitle = document.createElement('h4');
+    let rsrcTitle = document.createElement('h3');
+    let dtlTitle = document.createElement('h3');
+    let plyTitle = document.createElement('h3');
+    rltTitle.innerText = '关联地点';
+    oppTitle.innerText = d == 'overworld'? '下界侧': '主世界侧';
+    prtTitle.innerText = '属于';
+    chlTitle.innerText = '包含';
+    rsrcTitle.innerText = '物资';
+    dtlTitle.innerText = '说明';
+    plyTitle.innerText = '相关人员';
+    let rsrcInfo = document.createElement('p');
+    let dtlInfo = document.createElement('p');
+    let plyInfo = document.createElement('p');
+    rsrcInfo.innerText = place['resources'];
+    dtlInfo.innerText = place['details'];
+    plyInfo.innerText = place['players'];
+    let opposite = document.createElement('div');
+    let parent = document.createElement('div');
+    let children = document.createElement('div');
+    opposite.append(oppTitle);
+    parent.append(prtTitle);
+    children.append(chlTitle);
+    opposite.className = 'info_row';
+    parent.className = 'info_row';
+    children.className = 'info_row';
+    if(place['opposite'] != '') {    
+        let oppositeMap = d == 'overworld'? getMap('nether'): getMap('overworld');   
+        opposite.append(createAnchor(oppositeMap?.get(place['opposite'])));
+    } else {
+        opposite.style.display = 'none';
+    }
+    if(place['parent'] != '') {
+        parent.append(createAnchor(map?.get(place['parent'])));
+    } else {
+        parent.style.display = 'none';
+    }
+    if(place['children'] != '') {
+        let childrenPlaces = place['children'] == ''? []: place['children'] as string[];
+        childrenPlaces.forEach((childName) => {
+            children.append(createAnchor(map?.get(childName)));
+        });
+    } else {
+        children.style.display = 'none';
+    }
+    
+    if(opposite.style.display == 'none' && parent.style.display == 'none' && children.style.display == 'none') {
+        related.style.display = 'none';
+    }
+    
+    nameAndDimension.append(name, dimLabel, dimension);
+    coordinate.append(xLabel, x, yLabel, y, zLabel, z);
+    dimAddition.append(portalImg, portalType);
+    nameAndDimension.className = 'info_row';
+    coordinate.className = 'info_row';
+    dimAddition.className = 'info_row';
+    
+    basicInfo.append(nameAndDimension, coordinate, dimAddition, intro);
+    related.append(rltTitle, opposite, parent, children);
+    resources.append(rsrcTitle, rsrcInfo);
+    details.append(dtlTitle, dtlInfo);
+    players.append(plyTitle, plyInfo);
+    resources.style.display = rsrcInfo.innerText == ''? 'none': 'flex';
+    details.style.display = dtlInfo.innerText == ''? 'none': 'flex';
+    players.style.display = plyInfo.innerText == ''? 'none': 'flex';
+    
+    page.append(basicInfo, related, resources, details, players);
+    
+    page.className = d + '_page';
+
+    return page;
+}
+
 function infoMode(place: {[key: string]: any}) {
     save.style.display = 'none';
     cancel.style.display = 'none';
     moreLabel.style.display = 'flex';
     let page: HTMLDivElement;
+    // let imgUrl;
+    // let hasImg = false;
     
     if(place != undefined) {
         edit.style.display = 'flex';
-
+        
         placeShowing = place;
         
-        let d = place['dimension'];
-        let map = getMap(d);
-        
-        page = document.createElement('div');
-        
-        let basicInfo = document.createElement('div');
-        let related = document.createElement('div');
-        let resources = document.createElement('div');
-        let details = document.createElement('div');
-        let players = document.createElement('div');
-        
-        let nameAndDimension = document.createElement('div');
-        let coordinate = document.createElement('div');
-        let dimAddition = document.createElement('div');
-        
-        let name = document.createElement('h1');
-        name.innerText = place['name'];
-        let dimension = document.createElement('h2');
-        if(d == 'overworld') {
-            dimension.innerText = '主世界';
-            content.style.backgroundColor = 'rgb(117, 99, 80)';
-        }
-        if(d == 'nether') {
-            dimension.innerText = '下界';
-            content.style.backgroundColor = 'rgb(87, 45, 45)';
-
-        }
-        if(d == 'theEnd') {
-            dimension.innerText = '末地';
-            dimAddition.style.display = 'none'
-            content.style.backgroundColor = 'rgb(35, 0, 57)';
-
-        }
-        let dimLabel = getAssetsImage(d);
-        dimLabel.width = 24;
-        dimLabel.height = 24;
-        let xLabel = document.createElement('p');
-        let yLabel = document.createElement('p');
-        let zLabel = document.createElement('p');
-        xLabel.innerText = 'x';
-        yLabel.innerText = 'y';
-        zLabel.innerText = 'z';
-        let x = document.createElement('h3');
-        let y = document.createElement('h3');
-        let z = document.createElement('h3');
-        x.innerText = place['x'];
-        y.innerText = place['y'];
-        z.innerText = place['z'];
-        let portalImg = getAssetsImage('portal');
-        let portalType = document.createElement('h3');
-        portalImg.width = 16;
-        if(place['portal'] == '') {
-            portalType.innerText = '无下界传送门';
-            portalType.style.color = 'rgb(128, 128, 128)';
-        }
-        if(place['portal'] == 'func') {
-            portalType.innerText = '生产用门，禁止通行';
-            portalType.style.color = 'rgb(168, 80, 80)';
-        }
-        if(place['portal'] == 'pass') {
-            portalType.innerText = '下界传送门通行专用';
-            portalType.style.color = 'rgb(87, 174, 87)';
-        }
-        if(place['portal'] == 'both') {
-            portalType.innerText = '有门但不要走错';           
-            portalType.style.color = 'rgb(225, 195, 0)'
-        }
-        let intro = document.createElement('p');
-        intro.innerText = place['introduction'];
-        
-        let rltTitle = document.createElement('h3');
-        let oppTitle = document.createElement('h4');
-        let prtTitle = document.createElement('h4');
-        let chlTitle = document.createElement('h4');
-        let rsrcTitle = document.createElement('h3');
-        let dtlTitle = document.createElement('h3');
-        let plyTitle = document.createElement('h3');
-        rltTitle.innerText = '关联地点';
-        oppTitle.innerText = d == 'overworld'? '下界侧': '主世界侧';
-        prtTitle.innerText = '属于';
-        chlTitle.innerText = '包含';
-        rsrcTitle.innerText = '物资';
-        dtlTitle.innerText = '说明';
-        plyTitle.innerText = '相关人员';
-        let rsrcInfo = document.createElement('p');
-        let dtlInfo = document.createElement('p');
-        let plyInfo = document.createElement('p');
-        rsrcInfo.innerText = place['resources'];
-        dtlInfo.innerText = place['details'];
-        plyInfo.innerText = place['players'];
-        let opposite = document.createElement('div');
-        let parent = document.createElement('div');
-        let children = document.createElement('div');
-        opposite.append(oppTitle);
-        parent.append(prtTitle);
-        children.append(chlTitle);
-        opposite.className = 'info_row';
-        parent.className = 'info_row';
-        children.className = 'info_row';
-        if(place['opposite'] != '') {    
-            let oppositeMap = d == 'overworld'? getMap('nether'): getMap('overworld');   
-            opposite.append(createAnchor(oppositeMap?.get(place['opposite'])));
-        } else {
-            opposite.style.display = 'none';
-        }
-        if(place['parent'] != '') {
-            parent.append(createAnchor(map?.get(place['parent'])));
-        } else {
-            parent.style.display = 'none';
-        }
-        if(place['children'] != '') {
-            let childrenPlaces = place['children'] == ''? []: place['children'] as string[];
-            childrenPlaces.forEach((childName) => {
-                children.append(createAnchor(map?.get(childName)));
-            });
-        } else {
-            children.style.display = 'none';
-        }
-
-        if(opposite.style.display == 'none' && parent.style.display == 'none' && children.style.display == 'none') {
-            related.style.display = 'none';
-        }
-        
-        nameAndDimension.append(name, dimLabel, dimension);
-        coordinate.append(xLabel, x, yLabel, y, zLabel, z);
-        dimAddition.append(portalImg, portalType);
-        nameAndDimension.className = 'info_row';
-        coordinate.className = 'info_row';
-        dimAddition.className = 'info_row';
-        
-        basicInfo.append(nameAndDimension, coordinate, dimAddition, intro);
-        related.append(rltTitle, opposite, parent, children);
-        resources.append(rsrcTitle, rsrcInfo);
-        details.append(dtlTitle, dtlInfo);
-        players.append(plyTitle, plyInfo);
-        resources.style.display = rsrcInfo.innerText == ''? 'none': 'flex';
-        details.style.display = dtlInfo.innerText == ''? 'none': 'flex';
-        players.style.display = plyInfo.innerText == ''? 'none': 'flex';
-        
-        page.append(basicInfo, related, resources, details, players);
+        page = createInfoPage(place);     
         page.id = 'info_page';
-        page.className = d + '_page';
+        content.style.backgroundImage = '';
+
+        setBackPic(place["name"], content).then((picExists) => {
+            // if(url != undefined) {
+            //     imgUrl = url;
+            //     content.style.backgroundImage = `url(${imgUrl})`;
+            //     hasImg = true;
+            // } else {}
+            if(picExists) {
+                page.id = 'info_page_with_img';
+                let subPages = page.children;
+                let subPageSwitchFns: (() => void)[] = [];
+                for(let i = 0; i < subPages.length; i++) {
+                    if(i != 0) {
+                        (subPages[i] as HTMLDivElement).style.display = 'none';
+                    }
+                    let fn = () => {
+                        for(let j = 1; j < subPages.length; j++) {
+                            let div = subPages[j] as HTMLDivElement;
+                            if(j - 1 == i) {
+                                div.style.display = 'flex';
+                            } else {
+                                div.style.display = 'none';
+                            }
+                        }
+                    }
+                    subPageSwitchFns.push(fn);
+                }
+                let picker = getPicker('subpage', subPageSwitchFns, [
+                    getAssetsImage('local'),
+                    getAssetsImage('link'),
+                    getAssetsImage('chest'),
+                    getAssetsImage('info'),
+                    getAssetsImage('user')
+                ]);
+                page.insertAdjacentElement('afterbegin', picker);
+
+                content.style.overflow = 'hidden';
+                content.addEventListener('wheel', (event) => {
+                    if(event.deltaY > 0) {
+                        page.style.transform = 'translateY(0cm)';
+                        content.style.backgroundSize = '150% 150%';
+                    } else {
+                        page.style.transform = 'translateY(4.9cm)';
+                        content.style.backgroundSize = '100% 100%';
+                    }
+                })
+            } else {
+                content.style.overflowY = 'auto';
+            }
+        });
+
+        
     } else {
         page = homepage;
     }
@@ -823,6 +949,11 @@ function randomPlace() {
     let l = map.size;
     let place = map.get(keys[Math.floor(Math.random() * l)]);
     document.getElementById('card_name')!.innerText = place['name'];
+    setBackPic(place['name'], document.getElementById('preview') as HTMLDivElement).then((picExists) => {
+        if(!picExists) {
+            (document.getElementById('preview') as HTMLDivElement).style.backgroundImage = '';
+        }
+    });
     placeCard.onclick = () => {infoMode(place);};
 }
 
@@ -848,6 +979,9 @@ gohome.onclick = () => {
     save.style.display = 'none';
     cancel.style.display = 'none';
     moreLabel.style.display = 'flex';
+    content.style.overflowY = 'auto';
+    content.style.backgroundImage = '';
+    content.style.backgroundColor = 'rgb(240, 240, 240)';
     content.replaceChildren(homepage);
 }
 
