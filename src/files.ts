@@ -1,5 +1,6 @@
 import {join, documentDir} from '@tauri-apps/api/path';
-import {exists, writeTextFile, createDir, BaseDirectory, removeFile, readDir, readTextFile, readBinaryFile} from '@tauri-apps/api/fs';
+import {exists, writeTextFile, createDir, BaseDirectory, removeFile, readDir, readTextFile} from '@tauri-apps/api/fs';
+import {convertFileSrc} from '@tauri-apps/api/tauri'
 
 
 function saveFiles(place: {[key: string]: any}, fromPlace: {[key: string]: any} | null) {
@@ -82,11 +83,8 @@ async function setBackPic(name: string, html: HTMLDivElement) {
     let pic = await join(await documentDir(), 'HUstoneWizard', 'images', name + '.png');
     let picExists = await exists(pic);
     if(picExists) {
-        readBinaryFile(pic).then((image) => {
-            let blob = new Blob([image], {type: 'image/png'});
-            let url = URL.createObjectURL(blob);
-            html.style.backgroundImage = `url(${url})`;
-        });
+        let url = convertFileSrc(pic);
+        html.style.backgroundImage = `url(${url})`;
     }
     return picExists;
 }
