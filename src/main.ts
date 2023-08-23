@@ -1,4 +1,4 @@
-import {saveFiles, loadPlaces, setBackPic} from './files.js';
+import {saveFiles, loadPlaces, setBackPic, getResourceImg} from './files.js';
 
 var gohome = document.getElementById('gohome') as HTMLButtonElement;
 var search = document.getElementById('search') as HTMLInputElement;
@@ -18,52 +18,21 @@ var placeList = document.getElementById('place_list') as HTMLDivElement;
 var placeShowing: {[key: string]: any};
 var isSavingNew = true;
 
-var placesMaps = loadPlaces();
+var OVERWORLD_PLACES: Map<any, any>;
+var NETHER_PLACES: Map<any, any>;
+var THEEND_PLACES: Map<any, any>;
 
-const OVERWORLD_PLACES = placesMaps[0];
-const NETHER_PLACES = placesMaps[1];
-const THEEND_PLACES = placesMaps[2];
+loadPlaces().then((placesMaps) => {
+    OVERWORLD_PLACES = placesMaps[0];
+    NETHER_PLACES = placesMaps[1];
+    THEEND_PLACES = placesMaps[2];
+})
 
 var SEARCH_MODE = 'place';
 var SEARCH_RADIUS = 64;
 
-function getAssetsImage(name: string) {
-    let img: HTMLImageElement;
-    switch(name) {
-        case 'overworld':
-            img = document.getElementsByClassName('assets')[0].cloneNode() as HTMLImageElement;
-            break;
-        case 'nether':
-            img = document.getElementsByClassName('assets')[1].cloneNode() as HTMLImageElement;
-            break;
-        case 'theEnd':
-            img = document.getElementsByClassName('assets')[2].cloneNode() as HTMLImageElement;
-            break;
-        case 'portal':
-            img = document.getElementsByClassName('assets')[3].cloneNode() as HTMLImageElement;
-            break;
-        case 'local':
-            img = document.getElementsByClassName('assets')[4].cloneNode() as HTMLImageElement;
-            break;
-        case 'link':
-            img = document.getElementsByClassName('assets')[5].cloneNode() as HTMLImageElement;
-            break;
-        case 'chest':
-            img = document.getElementsByClassName('assets')[6].cloneNode() as HTMLImageElement;
-            break;
-        case 'info':
-            img = document.getElementsByClassName('assets')[7].cloneNode() as HTMLImageElement;
-            break;
-        case 'user':
-            img = document.getElementsByClassName('assets')[8].cloneNode() as HTMLImageElement;
-            break;
-        default:
-            img = document.getElementsByClassName('assets')[9].cloneNode() as HTMLImageElement;
-            break;      
-    }
-    img.className = '';
-    return img;
-}
+var LASTPAGE: HTMLDivElement;
+
 
 function getMap(dim: string) {
     let map;
@@ -79,21 +48,24 @@ function getMap(dim: string) {
     return map;
 }
 
-function getPicker(name: string, callbackfns: (() => void)[], labelImg: HTMLImageElement[]) {
+function getPicker(name: string, callbackfns: (() => void)[], resourceImgNames: string[], values?: string[]) {
     let picker = document.createElement('div');
     picker.className = 'picker';
     callbackfns.forEach((fn, i) => {
         let label = document.createElement('label');
+        let labelImg = document.createElement('img');
         let input = document.createElement('input');
         input.type = 'radio';
         input.id = name + '_' + i;
         input.name = name;
         input.checked = i == 0? true: false;
+        input.value = values == undefined? '': values[i];
+        getResourceImg(resourceImgNames[i]).then((src) => {labelImg.src = src});
+        labelImg.width = 24;
+        labelImg.height = 24;
         label.className = 'imgLabel';
         label.setAttribute('for', input.id);
-        label.append(labelImg[i]);
-        labelImg[i].width = 24;
-        labelImg[i].height = 24;
+        label.append(labelImg);
         input.onchange = () => {
             if(input.checked) {
                 fn();
@@ -159,9 +131,9 @@ function createEditPage() {
 
     // 维度选择
     let dimension = document.createElement('div');
-    let dimPicker = document.createElement('div');
+    // let dimPicker = document.createElement('div');
     let dimName = document.createElement('p');
-    dimPicker.className = 'picker';
+    // dimPicker.className = 'picker';
     dimension.id = 'dimension';
     dimName.innerText = '主世界';
 
@@ -181,27 +153,8 @@ function createEditPage() {
 
     dimAddition.append(portal4Func, _portal4Func_, portal4Pass, _portal4Pass_);
 
-    let overworld = document.createElement('input');
-    let nether = document.createElement('input');
-    let theEnd = document.createElement('input');
-    let _overworld_ = document.createElement('label');
-    let _nether_ = document.createElement('label');
-    let _theEnd_ = document.createElement('label');
-    let ov = getAssetsImage('overworld');
-    let nt = getAssetsImage('nether');
-    let end = getAssetsImage('theEnd');
-    overworld.type = 'radio';
-    nether.type = 'radio';
-    theEnd.type = 'radio';
-    overworld.name = 'dimension';
-    nether.name = 'dimension';
-    theEnd.name = 'dimension';
-    overworld.id = 'overworld';
-    nether.id = 'nether';
-    theEnd.id = 'theEnd';
-    overworld.checked = true;
-    overworld.onchange = () => {
-        if(overworld.checked) {
+    let dimPicker = getPicker('dimension', [
+        () => {           
             dimName.innerText = '主世界';
             dimAddition.style.display = 'flex';
             _opposite_.innerHTML = '<sub>下界侧</sub>';
@@ -213,11 +166,9 @@ function createEditPage() {
             opposite.value = '';
             opposite.dispatchEvent(new Event('input'));
             parent.value = '';
-            parent.dispatchEvent(new Event('input'));
-        }
-    }
-    nether.onchange = () => {
-        if(nether.checked) {
+            parent.dispatchEvent(new Event('input'));         
+        },
+        () => {
             dimName.innerText = '下界';
             dimAddition.style.display = 'flex';
             _opposite_.innerHTML = '<sub>主世界侧</sub>';
@@ -230,10 +181,8 @@ function createEditPage() {
             opposite.dispatchEvent(new Event('input'));
             parent.value = '';
             parent.dispatchEvent(new Event('input'));
-        }
-    }
-    theEnd.onchange = () => {
-        if(theEnd.checked) {
+        },
+        () => {
             dimName.innerText = '末地';
             dimAddition.style.display = 'none';
             _opposite_.style.display = 'none';
@@ -247,21 +196,16 @@ function createEditPage() {
             portal4Func.checked = false;
             portal4Pass.checked = false;
         }
-    }
-    _overworld_.setAttribute('for', 'overworld');
-    _nether_.setAttribute('for', 'nether');
-    _theEnd_.setAttribute('for', 'theEnd');
-    _overworld_.className = 'imgLabel';
-    _nether_.className = 'imgLabel';
-    _theEnd_.className = 'imgLabel';
-    ov.width = 24;
-    nt.width = 24;
-    end.width = 24;
-    _overworld_.appendChild(ov);
-    _nether_.appendChild(nt);
-    _theEnd_.appendChild(end);
+    ], [
+        'overworld.svg',
+        'nether.svg',
+        'theEnd.svg'
+    ], [
+        'overworld',
+        'nether',
+        'theEnd'
+    ]);
 
-    dimPicker.append(overworld, _overworld_, nether, _nether_, theEnd, _theEnd_);
     dimension.append(dimPicker, dimName);
 
     // 坐标输入
@@ -428,10 +372,10 @@ function searchRadiusSetting() {
     return setting;
 }
 
-function fillInfo() {
+function fillEditPage() {
     let name = document.getElementById('name') as HTMLInputElement;
     let intro = document.getElementById('introduction') as HTMLTextAreaElement;
-    let dimension = document.getElementById(placeShowing['dimension']) as HTMLInputElement;
+    let dimensions = document.getElementsByName('dimension');
     let x = document.getElementById('x') as HTMLInputElement;
     let y = document.getElementById('y') as HTMLInputElement;
     let z = document.getElementById('z') as HTMLInputElement;
@@ -445,8 +389,13 @@ function fillInfo() {
 
     name.value = placeShowing['name'];
     intro.value = placeShowing['introduction'];
-    dimension.checked = true;
-    dimension.dispatchEvent(new Event('change'));
+    dimensions.forEach((item) => {
+        let dimInput = item as HTMLInputElement;
+        if(dimInput.value == placeShowing['dimension']) {
+            dimInput.checked = true;
+            dimInput.dispatchEvent(new Event('change'));
+        }
+    })
 
     if(placeShowing['portal'] == 'both') {
         funcPortal.checked = true;
@@ -474,9 +423,10 @@ function editMode(isNewOne: boolean) {
     save.disabled = isNewOne;
     cancel.style.display = 'flex';
     isSavingNew = isNewOne;
+    LASTPAGE = content.firstChild as HTMLDivElement;
     createEditPage();
     if(!isNewOne) {
-        fillInfo();
+        fillEditPage();
     }
 }
 
@@ -523,7 +473,8 @@ function createInfoPage(place: {[key: string]: any}) {
         content.style.backgroundColor = 'rgb(35, 0, 57)';
     
     }
-    let dimLabel = getAssetsImage(d);
+    let dimLabel = document.createElement('img');
+    getResourceImg(d + '.svg').then((src) => {dimLabel.src = src});
     dimLabel.width = 24;
     dimLabel.height = 24;
     let xLabel = document.createElement('p');
@@ -538,7 +489,8 @@ function createInfoPage(place: {[key: string]: any}) {
     x.innerText = place['x'];
     y.innerText = place['y'];
     z.innerText = place['z'];
-    let portalImg = getAssetsImage('portal');
+    let portalImg = document.createElement('img');
+    getResourceImg('portal.webp').then((src) => {portalImg.src = src});
     let portalType = document.createElement('h3');
     portalImg.width = 16;
     if(place['portal'] == '') {
@@ -641,74 +593,60 @@ function infoMode(place: {[key: string]: any}) {
     cancel.style.display = 'none';
     moreLabel.style.display = 'flex';
     let page: HTMLDivElement;
-    // let imgUrl;
-    // let hasImg = false;
     
-    if(place != undefined) {
-        edit.style.display = 'flex';
-        
-        placeShowing = place;
-        
-        page = createInfoPage(place);     
-        page.id = 'info_page';
-        content.style.backgroundImage = '';
+    edit.style.display = 'flex';
+    
+    placeShowing = place;
+    
+    page = createInfoPage(place);     
 
-        setBackPic(place["name"], content).then((picExists) => {
-            // if(url != undefined) {
-            //     imgUrl = url;
-            //     content.style.backgroundImage = `url(${imgUrl})`;
-            //     hasImg = true;
-            // } else {}
-            if(picExists) {
-                page.id = 'info_page_with_img';
-                let subPages = page.children;
-                let subPageSwitchFns: (() => void)[] = [];
-                for(let i = 0; i < subPages.length; i++) {
-                    if(i != 0) {
-                        (subPages[i] as HTMLDivElement).style.display = 'none';
-                    }
-                    let fn = () => {
-                        for(let j = 1; j < subPages.length; j++) {
-                            let div = subPages[j] as HTMLDivElement;
-                            if(j - 1 == i) {
-                                div.style.display = 'flex';
-                            } else {
-                                div.style.display = 'none';
-                            }
+    setBackPic(place["name"], content).then((picExists) => {
+        if(picExists) {
+            page.id = 'info_page_with_img';
+            let subPages = page.children;
+            let subPageSwitchFns: (() => void)[] = [];
+            for(let i = 0; i < subPages.length; i++) {
+                if(i != 0) {
+                    (subPages[i] as HTMLDivElement).style.display = 'none';
+                }
+                let fn = () => {
+                    for(let j = 1; j < subPages.length; j++) {
+                        let div = subPages[j] as HTMLDivElement;
+                        if(j - 1 == i) {
+                            div.style.display = 'flex';
+                        } else {
+                            div.style.display = 'none';
                         }
                     }
-                    subPageSwitchFns.push(fn);
                 }
-                let picker = getPicker('subpage', subPageSwitchFns, [
-                    getAssetsImage('local'),
-                    getAssetsImage('link'),
-                    getAssetsImage('chest'),
-                    getAssetsImage('info'),
-                    getAssetsImage('user')
-                ]);
-                page.insertAdjacentElement('afterbegin', picker);
-
-                content.style.overflow = 'hidden';
-                content.addEventListener('wheel', (event) => {
-                    if(event.deltaY > 0) {
-                        page.style.transform = 'translateY(0cm)';
-                        content.style.backgroundSize = '150% 150%';
-                    } else {
-                        page.style.transform = 'translateY(4.9cm)';
-                        content.style.backgroundSize = '100% 100%';
-                    }
-                })
-            } else {
-                content.style.overflowY = 'auto';
+                subPageSwitchFns.push(fn);
             }
-        });
+            let picker = getPicker('subpage', subPageSwitchFns, [
+                'local.svg',
+                'link.svg',
+                'chest.svg',
+                'info.svg',
+                'user.svg'
+            ]);
+            page.insertAdjacentElement('afterbegin', picker);
 
-        
-    } else {
-        page = homepage;
-    }
-    
-    content.replaceChildren(page);
+            content.style.overflow = 'hidden';
+            content.addEventListener('wheel', (event) => {
+                if(event.deltaY > 0) {
+                    page.style.transform = 'translateY(0cm)';
+                    content.style.backgroundSize = '150% 150%';
+                } else {
+                    page.style.transform = 'translateY(4.9cm)';
+                    content.style.backgroundSize = '100% 100%';
+                }
+            })
+        } else {
+            page.id = 'info_page';
+            content.style.backgroundImage = '';
+            content.style.overflowY = 'auto';
+        }
+        content.replaceChildren(page);
+    });
 }
 
 function savePlaces() {
@@ -727,7 +665,7 @@ function savePlaces() {
     dims.forEach((element) => {
         let input = element as HTMLInputElement;
         if(input.checked) {
-            dimension = input.id;
+            dimension = input.value;
         }
     });
     let map = getMap(dimension);
@@ -765,7 +703,7 @@ function savePlaces() {
         'players': players.value,
     }
 
-    let oldPlace2Remove = null;
+    let oldPlace2Remove;
 
     if(!isSavingNew) {
         let dimPast = placeShowing['dimension'];
@@ -783,7 +721,7 @@ function savePlaces() {
                 childrenPast.forEach((child) => {
                     let childPast = mapPast?.get(child);
                     childPast['parent'] = '';
-                    saveFiles(childPast, null);
+                    saveFiles(childPast);
                 })
             }
         }
@@ -793,7 +731,7 @@ function savePlaces() {
                 let brothers = parentPast['children'] == ''? []: parentPast['children'] as string[];
                 brothers.splice(brothers.indexOf(placeShowing['name']), 1);
                 parentPast['children'] = brothers;
-                saveFiles(parentPast, null);
+                saveFiles(parentPast);
             }
         }
         if(placeShowing['opposite'] != place['opposite'] || name.value != placeShowing['name']) {
@@ -801,7 +739,7 @@ function savePlaces() {
                 let oppositeMap = dimPast == 'overworld'? getMap('nether'): getMap('overworld');
                 let opposite = oppositeMap?.get(placeShowing['opposite']);
                 opposite['opposite'] = '';
-                saveFiles(opposite, null);
+                saveFiles(opposite);
             }
         }
     }
@@ -810,20 +748,20 @@ function savePlaces() {
         let brothers = parent['children'] == ''? []: parent['children'] as string[];
         brothers.push(place['name']);
         parent['children'] = brothers;
-        saveFiles(parent, null);
+        saveFiles(parent);
     }
     if(place['opposite'] != '') {
         let oppositeMap = place['dimension'] == 'overworld'? getMap('nether'): getMap('overworld');
         let opposite = oppositeMap?.get(place['opposite']);
         opposite['opposite'] = place['name'];
-        saveFiles(opposite, null);
+        saveFiles(opposite);
     }
     let children = place['children'] == ''? []: place['children'] as string[];
     if(children.length != 0) {
         children.forEach((item) => {
             let child = map?.get(item);
             child['parent'] = place['name'];
-            saveFiles(child, null);
+            saveFiles(child);
         })
     }
 
@@ -836,7 +774,8 @@ function savePlaces() {
 function addResult(place: {[key: string]: any}, container: HTMLDivElement, callbackfn: () => void) {
     let dim = place['dimension'];
     let div = document.createElement('div');
-    let img = getAssetsImage(dim);
+    let img = document.createElement('img');
+    getResourceImg(dim + '.svg').then((src) => {img.src = src});
     let name = document.createElement('p');
     img.width = 24;
     img.height = 24;
@@ -858,33 +797,18 @@ function addResult(place: {[key: string]: any}, container: HTMLDivElement, callb
 
 function findPlaces(key: string, match: string) { 
     searchResult.replaceChildren();
-    OVERWORLD_PLACES.forEach((item) => {
-        let value = item[key] as string;
+    let placeMatch = function(place: {[key: string]: any}) {
+        let value = place[key] as string;
         if(value.includes(match)) {
-            addResult(item, searchResult, () => {
+            addResult(place, searchResult, () => {
                 searchResult.style.display = 'none';
-                infoMode(item);
+                infoMode(place);
             });
         }
-    });
-    NETHER_PLACES.forEach((item) => {
-        let value = item[key] as string;
-        if(value.includes(match)) {
-            addResult(item, searchResult, () => {
-                searchResult.style.display = 'none';
-                infoMode(item);
-            });
-        }
-    });
-    THEEND_PLACES.forEach((item) => {
-        let value = item[key] as string;
-        if(value.includes(match)) {
-            addResult(item, searchResult, () => {
-                searchResult.style.display = 'none';
-                infoMode(item);
-            });
-        }
-    });
+    }
+    OVERWORLD_PLACES.forEach(placeMatch);
+    NETHER_PLACES.forEach(placeMatch);
+    THEEND_PLACES.forEach(placeMatch);
     if(searchResult.children.length == 0) {
         let p = document.createElement('p');
         p.innerText = '没有找到捏';
@@ -1015,7 +939,11 @@ save.onclick = () => {
 };
 
 cancel.onclick = () => {
-    infoMode(placeShowing);
+    if(LASTPAGE == homepage) {
+        gohome.click();
+    } else {
+        infoMode(placeShowing);
+    }
 };
 
 create.onclick = () => {
@@ -1065,33 +993,13 @@ document.getElementsByName('list_dim').forEach((item) => {
             for(let i = placeList.children.length - 1; i >= 1; i--) {
                 placeList.children[i].remove();
             }
-            if(dimSelected.value == 'overworld') {
-                OVERWORLD_PLACES.forEach((item) => {
-                    addResult(item, placeList, () => {
-                        placeList.style.display = 'none';
-                        infoMode(item);
-                    });
-                })
-            }
-            if(dimSelected.value == 'nether') {
-                NETHER_PLACES.forEach((item) => {
-                    addResult(item, placeList, () => {
-                        placeList.style.display = 'none';
-                        infoMode(item);
-                    });
-                })
-            }
-            if(dimSelected.value == 'theEnd') {
-                THEEND_PLACES.forEach((item) => {
-                    addResult(item, placeList, () => {
-                        placeList.style.display = 'none';
-                        infoMode(item);
-                    });
-                })
-            }
+            let map = getMap(dimSelected.value);
+            map.forEach((item) => {
+                addResult(item, placeList, () => {
+                    placeList.style.display = 'none';
+                    infoMode(item);
+                });
+            });
         }
     }
 })
-
-// createEditPage();
-// console.log(placeShowing);

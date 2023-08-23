@@ -1,22 +1,18 @@
-import {join, documentDir} from '@tauri-apps/api/path';
+import {join, documentDir, resolveResource} from '@tauri-apps/api/path';
 import {exists, writeTextFile, createDir, BaseDirectory, removeFile, readDir, readTextFile} from '@tauri-apps/api/fs';
 import {convertFileSrc} from '@tauri-apps/api/tauri'
 
 
-function saveFiles(place: {[key: string]: any}, fromPlace: {[key: string]: any} | null) {
-    join('HUstoneWizard', 'places').then((DIR) => {
-        join(DIR, place['name'] + '.json').then((newPlace) => {
-            writeTextFile(newPlace, JSON.stringify(place, null, 2), {dir: BaseDirectory.Document});
-        });
-        if(fromPlace != null) {
-            join(DIR, fromPlace['name'] + '.json').then((place2BeRemoved) => {
-                removeFile(place2BeRemoved, {dir: BaseDirectory.Document});
-            });
-        }
-    })
+async function saveFiles(place: {[key: string]: any}, fromPlace?: {[key: string]: any}) {
+    let dir2Save = await join('HUstoneWizard', 'places', place['name'] + '.json');
+    writeTextFile(dir2Save, JSON.stringify(place, null, 2), {dir: BaseDirectory.Document});
+    if(fromPlace != undefined) {
+        let dir2Remove = await join('HUstoneWizard', 'places', fromPlace['name'] + '.json');
+        removeFile(dir2Remove, {dir: BaseDirectory.Document});
+    }
 }
 
-function loadPlaces() {
+async function loadPlaces() {
     let keys4verify = [
         'name',
         'introduction',
@@ -32,49 +28,40 @@ function loadPlaces() {
         'details',
         'players'
     ];
+    let placesDir = await join('HUstoneWizard', 'places');
+    let imagesDir = await join('HUstoneWizard', 'images');
     let overworldPlaces = new Map();
     let netherPlaces = new Map();
     let theEndPlaces = new Map();
-    join('HUstoneWizard', 'places').then((DIR) => {
-        exists(DIR, {dir: BaseDirectory.Document}).then((exist) => {
-            if(!exist) {
-                createDir(DIR, {dir: BaseDirectory.Document, recursive: true});
-            } else {
-                readDir(DIR, {dir: BaseDirectory.Document}).then((fileEntry) => {
-                    fileEntry.forEach((item) => {
-                        readTextFile(item.path).then((content) => {
-                            let place = JSON.parse(content);
-                            keys4verify.forEach((key) => {
-                                if(place[key] == undefined) {
-                                    place[key] = '';
-                                }
-                            })
-                            let dim = place['dimension'];
-                            if(dim == 'overworld') {
-                                overworldPlaces.set(place['name'], place);
-                            }
-                            if(dim == 'nether') {
-                                netherPlaces.set(place['name'], place);
-                            }
-                            if(dim == 'theEnd') {
-                                theEndPlaces.set(place['name'], place);
-                            }
-                        });
-                    })
-                });
-            }
-        })
-    });
-
-    join('HUstoneWizard', 'images').then((DIR) => {
-        return exists(DIR, {dir: BaseDirectory.Document})
-    }).then((exist) => {
-        if(!exist) {
-            join('HUstoneWizard', 'images').then((DIR) => {
-                createDir(DIR, {dir: BaseDirectory.Document, recursive: true});
+    
+    if(!(await exists(placesDir, {dir: BaseDirectory.Document}))) {
+        createDir(placesDir, {dir: BaseDirectory.Document, recursive: true});
+    } else {
+        (await readDir(placesDir, {dir: BaseDirectory.Document})).forEach((fileEntry) => {
+            readTextFile(fileEntry.path).then((content) => {
+                let place = JSON.parse(content);
+                keys4verify.forEach((key) => {
+                    if(place[key] == undefined) {
+                        place[key] = '';
+                    }
+                })
+                let dim = place['dimension'];
+                if(dim == 'overworld') {
+                    overworldPlaces.set(place['name'], place);
+                }
+                if(dim == 'nether') {
+                    netherPlaces.set(place['name'], place);
+                }
+                if(dim == 'theEnd') {
+                    theEndPlaces.set(place['name'], place);
+                }
             });
-        }
-    })
+        })
+    }
+
+    if(!(await exists(imagesDir, {dir: BaseDirectory.Document}))) {
+        createDir(imagesDir, {dir: BaseDirectory.Document, recursive: true});
+    }
     
     return [overworldPlaces, netherPlaces, theEndPlaces];
 }
@@ -89,4 +76,8 @@ async function setBackPic(name: string, html: HTMLDivElement) {
     return picExists;
 }
 
-export {saveFiles, loadPlaces, setBackPic};
+async function getResourceImg(fileName: string) {
+    return convertFileSrc(await resolveResource('../resources/' + fileName));
+}
+
+export {saveFiles, loadPlaces, setBackPic, getResourceImg};

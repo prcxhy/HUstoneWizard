@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "HUstoneWizard",
-    "version": "2.0.0"
+    "version": "2.1.0"
   },
   "tauri": {
     "allowlist": {
@@ -23,7 +23,10 @@
         "open": true
       },
       "fs": {
-        "scope": ["$DOCUMENT/**"],
+        "scope": [
+          "$DOCUMENT/**",
+          "$RESOURCE/*"
+        ],
         "readFile": true,
         "writeFile": true,
         "readDir": true,
@@ -48,6 +51,9 @@
         "icons/128x128@2x.png",
         "icons/icon.icns",
         "icons/icon.ico"
+      ],
+      "resources": [
+        "../resources/*"
       ]
     },
     "security": {
