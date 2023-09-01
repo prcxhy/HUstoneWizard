@@ -66,6 +66,15 @@
     overflow-x: hidden;
 }
 
+#info_page_with_img .info_row > label {
+    margin: 0mm;
+}
+
+#info_page_with_img .info_row > input[type="button"] {
+    margin: 0mm 2mm;
+    margin-top: -1mm;
+}
+
 #info_page_with_img .info_row > h4 {
     margin-left: 3mm;
 }

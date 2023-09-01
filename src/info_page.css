@@ -40,7 +40,13 @@
     margin-right: 2mm;
 }
 
-.info_row > h2, .info_row > h4 {
+.info_row > label {
+    padding: auto;
+    margin: 0mm;
+    margin-top: 3mm;
+}
+
+.info_row > h2, .info_row > h4, .info_row > input[type="button"] {
     margin: auto 0mm;
 }
 
@@ -49,15 +55,27 @@
     margin-right: 8mm;
 }
 
-.info_row > button {
-    font-size: 4mm;
+.info_row > button, .info_row > input[type="button"] {
     font-weight: bold;
-    height: 8mm;
-    margin: 1mm 0mm 1mm 2mm;
     border-width: 0px;
     border-radius: 1.2mm;
     user-select: none;
     cursor: pointer;
+}
+
+.info_row > button {
+    font-size: 4mm;
+    height: 8mm;
+    margin: 1mm 0mm 1mm 2mm;
+}
+
+.info_row > input[type="button"] {
+    background-color: transparent;
+    font-size: 5mm;
+    height: 8mm;
+    padding: 0mm;
+    margin: 0mm 2mm;
+    margin-top: 2mm;
 }
 
 .overworld_page > div {
@@ -75,7 +93,7 @@
     color: rgb(23, 67, 143);
 }
 
-.overworld_page h2 {
+.overworld_page input[type="button"] {
     color: rgb(14, 90, 14);
 }
 
@@ -109,7 +127,7 @@
     color: rgb(255, 168, 96);
 }
 
-.nether_page h2 {
+.nether_page input[type="button"] {
     color: rgb(168, 80, 80);
 }
 
@@ -142,7 +160,7 @@
     color: rgb(52, 0, 84);
 }
 
-.theEnd_page h2 {
+.theEnd_page input[type="button"] {
     color: rgb(74, 0, 121);
 }
 

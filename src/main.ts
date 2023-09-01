@@ -64,7 +64,7 @@ function getPicker(name: string, callbackfns: (() => void)[], resourceImgNames: 
         labelImg.width = 24;
         labelImg.height = 24;
         label.className = 'imgLabel';
-        label.setAttribute('for', input.id);
+        label.htmlFor = input.id;
         label.append(labelImg);
         input.onchange = () => {
             if(input.checked) {
@@ -74,6 +74,7 @@ function getPicker(name: string, callbackfns: (() => void)[], resourceImgNames: 
         picker.append(input, label);
     });
     picker.onwheel = (event) => {
+        // event.stopPropagation();
         let index = -1;
         let selections = document.getElementsByName(name);
         selections.forEach((item, i) => {
@@ -110,6 +111,7 @@ function createEditPage() {
 
     // 地名输入
     let name = document.createElement('input');
+    let imageNote = document.createElement('p');
     let intro = document.createElement('textarea');
     let _name_ = document.createElement('label');
     let _intro_ = document.createElement('label');
@@ -126,8 +128,9 @@ function createEditPage() {
     }
     _name_.innerText = '名称';
     _intro_.innerText = '简介';
-    _name_.setAttribute('for', 'name');
-    _intro_.setAttribute('for', 'introduction');
+    _name_.htmlFor = 'name';
+    _intro_.htmlFor = 'introduction';
+    imageNote.innerText = '⚠️ 如需添加背景图，请将与此地点同名的png图片手动置于 "文档\\HUstoneWizard\\images" 下';
 
     // 维度选择
     let dimension = document.createElement('div');
@@ -146,8 +149,8 @@ function createEditPage() {
     portal4Pass.type = 'checkbox';
     portal4Func.id = 'func';
     portal4Pass.id = 'pass';
-    _portal4Func_.setAttribute('for', 'func');
-    _portal4Pass_.setAttribute('for', 'pass');
+    _portal4Func_.htmlFor = 'func';
+    _portal4Pass_.htmlFor = 'pass';
     _portal4Func_.innerText = '有工业用传送门';
     _portal4Pass_.innerText = '有通行用传送门';
 
@@ -230,12 +233,12 @@ function createEditPage() {
     _x_.innerText = 'x';
     _y_.innerText = 'y';
     _z_.innerText = 'z';
-    _x_.setAttribute('for', 'x');
-    _y_.setAttribute('for', 'y');
-    _z_.setAttribute('for', 'z');
+    _x_.htmlFor = 'x';
+    _y_.htmlFor = 'y';
+    _z_.htmlFor = 'z';
     coordinate.append(_x_, x, _y_, y, _z_, z);
 
-    basicInfo.append(_name_, name, _intro_, intro, dimension, dimAddition, coordinate);
+    basicInfo.append(_name_, name, imageNote, _intro_, intro, dimension, dimAddition, coordinate);
     
     // 相关地点信息区
     let rlt = document.createElement('div');
@@ -286,11 +289,11 @@ function createEditPage() {
     _resources_.innerText = '物资';
     _details_.innerText = '说明';
     _players_.innerText = '相关人员';
-    _parent_.setAttribute('for', 'parent');
-    _opposite_.setAttribute('for', 'opposite');
-    _resources_.setAttribute('for', 'resources');
-    _details_.setAttribute('for', 'details');
-    _players_.setAttribute('for', 'players');
+    _parent_.htmlFor = 'parent';
+    _opposite_.htmlFor = 'opposite';
+    _resources_.htmlFor = 'resources';
+    _details_.htmlFor = 'details';
+    _players_.htmlFor = 'players';
 
     parent.oninput = () => {
         if(parent.value != '') {
@@ -423,7 +426,7 @@ function editMode(isNewOne: boolean) {
     save.disabled = isNewOne;
     cancel.style.display = 'flex';
     isSavingNew = isNewOne;
-    LASTPAGE = content.firstChild as HTMLDivElement;
+    LASTPAGE = content.children[0] as HTMLDivElement;
     createEditPage();
     if(!isNewOne) {
         fillEditPage();
@@ -457,26 +460,36 @@ function createInfoPage(place: {[key: string]: any}) {
     
     let name = document.createElement('h1');
     name.innerText = place['name'];
-    let dimension = document.createElement('h2');
+    let dimension = document.createElement('input');
+    dimension.id = 'dimName';
+    dimension.type = 'button';
+    dimension.onclick = () => {
+        gohome.click();
+        openList(d);
+    }
     if(d == 'overworld') {
-        dimension.innerText = '主世界';
+        dimension.value = '主世界';
         content.style.backgroundColor = 'rgb(117, 99, 80)';
     }
     if(d == 'nether') {
-        dimension.innerText = '下界';
+        dimension.value = '下界';
         content.style.backgroundColor = 'rgb(87, 45, 45)';
     
     }
     if(d == 'theEnd') {
-        dimension.innerText = '末地';
+        dimension.value = '末地';
         dimAddition.style.display = 'none'
         content.style.backgroundColor = 'rgb(35, 0, 57)';
     
     }
-    let dimLabel = document.createElement('img');
-    getResourceImg(d + '.svg').then((src) => {dimLabel.src = src});
-    dimLabel.width = 24;
-    dimLabel.height = 24;
+    let dimLabel = document.createElement('label');
+    let dimIcon = document.createElement('img');
+    getResourceImg(d + '.svg').then((src) => {dimIcon.src = src});
+    dimIcon.width = 24;
+    dimIcon.height = 24;
+    dimLabel.append(dimIcon);
+    dimLabel.htmlFor = 'dimName';
+
     let xLabel = document.createElement('p');
     let yLabel = document.createElement('p');
     let zLabel = document.createElement('p');
@@ -766,9 +779,10 @@ function savePlaces() {
     }
 
     map?.set(name.value, place);
-    saveFiles(place, oldPlace2Remove);
+    saveFiles(place, oldPlace2Remove).then(() => {
+        infoMode(place);
+    });
     
-    infoMode(place);
 }
 
 function addResult(place: {[key: string]: any}, container: HTMLDivElement, callbackfn: () => void) {
@@ -860,6 +874,16 @@ function findPlacesByXYZ(xyz: string) {
     }       
 }
 
+function fillCard(place: {[key: string]: any}) {
+    document.getElementById('card_name')!.innerText = place['name'];
+    setBackPic(place['name'], document.getElementById('preview') as HTMLDivElement).then((picExists) => {
+        if(!picExists) {
+            (document.getElementById('preview') as HTMLDivElement).style.backgroundImage = '';
+        }
+    });
+    placeCard.onclick = () => {infoMode(place);};
+}
+
 function randomPlace() {
     let d = Math.floor(Math.random() * 3);
     let map = OVERWORLD_PLACES;
@@ -872,13 +896,25 @@ function randomPlace() {
     let keys = Array.from(map.keys());
     let l = map.size;
     let place = map.get(keys[Math.floor(Math.random() * l)]);
-    document.getElementById('card_name')!.innerText = place['name'];
-    setBackPic(place['name'], document.getElementById('preview') as HTMLDivElement).then((picExists) => {
-        if(!picExists) {
-            (document.getElementById('preview') as HTMLDivElement).style.backgroundImage = '';
-        }
-    });
-    placeCard.onclick = () => {infoMode(place);};
+    fillCard(place);
+}
+
+function openList(dimension: string = 'overworld') {
+    placeCard.style.display = 'none';
+    placeList.style.display = 'flex';
+    let dimList;
+    switch(dimension) {
+        case 'nether': 
+            dimList = document.getElementById('list_nt') as HTMLInputElement;
+            break;
+        case 'theEnd':
+            dimList = document.getElementById('list_end') as HTMLInputElement;
+            break;
+        default:
+            dimList = document.getElementById('list_ov') as HTMLInputElement;
+    }
+    dimList.checked = true;
+    dimList.dispatchEvent(new Event('change'));
 }
 
 document.getElementById('refresh')!.onclick = (event) => {
@@ -887,12 +923,7 @@ document.getElementById('refresh')!.onclick = (event) => {
 }
 
 document.getElementById('list')!.onclick = (event) => {
-    content.style.backgroundColor = '';
-    placeCard.style.display = 'none';
-    placeList.style.display = 'flex';
-    let ovList = document.getElementById('list_ov') as HTMLInputElement;
-    ovList.checked = true;
-    ovList.dispatchEvent(new Event('change'));
+    openList();
     event.stopPropagation();
 }
 
@@ -907,6 +938,9 @@ gohome.onclick = () => {
     content.style.backgroundImage = '';
     content.style.backgroundColor = 'rgb(240, 240, 240)';
     content.replaceChildren(homepage);
+    if(placeShowing != undefined) {
+        fillCard(placeShowing);
+    }
 }
 
 search.oninput = () => {

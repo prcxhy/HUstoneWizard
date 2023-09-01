@@ -1,5 +1,5 @@
 import {join, documentDir, resolveResource} from '@tauri-apps/api/path';
-import {exists, writeTextFile, createDir, BaseDirectory, removeFile, readDir, readTextFile} from '@tauri-apps/api/fs';
+import {exists, writeTextFile, createDir, BaseDirectory, removeFile, readDir, readTextFile, renameFile} from '@tauri-apps/api/fs';
 import {convertFileSrc} from '@tauri-apps/api/tauri'
 
 
@@ -9,6 +9,12 @@ async function saveFiles(place: {[key: string]: any}, fromPlace?: {[key: string]
     if(fromPlace != undefined) {
         let dir2Remove = await join('HUstoneWizard', 'places', fromPlace['name'] + '.json');
         removeFile(dir2Remove, {dir: BaseDirectory.Document});
+
+        let oldImage = await join('HUstoneWizard', 'images', fromPlace['name'] + '.png');
+        let newImage = await join('HUstoneWizard', 'images', place['name'] + '.png');
+        if(await exists(oldImage, {dir: BaseDirectory.Document})) {
+            renameFile(oldImage, newImage, {dir: BaseDirectory.Document});
+        }
     }
 }
 
