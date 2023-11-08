@@ -22,11 +22,20 @@ var OVERWORLD_PLACES: Map<any, any>;
 var NETHER_PLACES: Map<any, any>;
 var THEEND_PLACES: Map<any, any>;
 
-loadPlaces().then((placesMaps) => {
-    OVERWORLD_PLACES = placesMaps[0];
-    NETHER_PLACES = placesMaps[1];
-    THEEND_PLACES = placesMaps[2];
-})
+function importPlaces() {
+    loadPlaces().then((placesMaps) => {
+        if(placesMaps.length == 0) {
+            (document.getElementById('no_places_info') as HTMLParagraphElement).style.display = 'flex';
+        } else {
+            (document.getElementById('no_places_info') as HTMLParagraphElement).style.display = 'none';
+            OVERWORLD_PLACES = placesMaps[0];
+            NETHER_PLACES = placesMaps[1];
+            THEEND_PLACES = placesMaps[2];
+        }
+    })
+}
+
+importPlaces();
 
 var SEARCH_MODE = 'place';
 var SEARCH_RADIUS = 64;
@@ -426,7 +435,7 @@ function editMode(isNewOne: boolean) {
     save.disabled = isNewOne;
     cancel.style.display = 'flex';
     isSavingNew = isNewOne;
-    LASTPAGE = content.children[0] as HTMLDivElement;
+    LASTPAGE = content.lastElementChild as HTMLDivElement;
     createEditPage();
     if(!isNewOne) {
         fillEditPage();
@@ -876,9 +885,14 @@ function findPlacesByXYZ(xyz: string) {
 
 function fillCard(place: {[key: string]: any}) {
     document.getElementById('card_name')!.innerText = place['name'];
-    setBackPic(place['name'], document.getElementById('preview') as HTMLDivElement).then((picExists) => {
+    setBackPic(
+        place['name'],
+        document.getElementById('preview') as HTMLDivElement,
+        document.getElementById('blur_img') as HTMLDivElement).then((picExists) => {
         if(!picExists) {
             (document.getElementById('preview') as HTMLDivElement).style.backgroundImage = '';
+            (document.getElementById('blur_img') as HTMLDivElement).style.backgroundImage = '';
+            (document.getElementById('blur_img') as HTMLDivElement).style.backgroundColor = 'rgb(240, 240, 240)';
         }
     });
     placeCard.onclick = () => {infoMode(place);};
@@ -902,6 +916,7 @@ function randomPlace() {
 function openList(dimension: string = 'overworld') {
     placeCard.style.display = 'none';
     placeList.style.display = 'flex';
+    (document.getElementById('blur_img') as HTMLDivElement).style.display = 'none';
     let dimList;
     switch(dimension) {
         case 'nether': 
@@ -916,6 +931,8 @@ function openList(dimension: string = 'overworld') {
     dimList.checked = true;
     dimList.dispatchEvent(new Event('change'));
 }
+
+document.getElementById('no_places_info')!.onclick = importPlaces;
 
 document.getElementById('refresh')!.onclick = (event) => {
     randomPlace();
@@ -936,8 +953,9 @@ gohome.onclick = () => {
     moreLabel.style.display = 'flex';
     content.style.overflowY = 'auto';
     content.style.backgroundImage = '';
-    content.style.backgroundColor = 'rgb(240, 240, 240)';
+    content.style.backgroundColor = 'transparent';
     content.replaceChildren(homepage);
+    (document.getElementById('blur_img') as HTMLDivElement).style.display = 'flex';
     if(placeShowing != undefined) {
         fillCard(placeShowing);
     }

@@ -42,8 +42,13 @@ async function loadPlaces() {
     
     if(!(await exists(placesDir, {dir: BaseDirectory.Document}))) {
         createDir(placesDir, {dir: BaseDirectory.Document, recursive: true});
+        return [];
     } else {
-        (await readDir(placesDir, {dir: BaseDirectory.Document})).forEach((fileEntry) => {
+        let fileEntries = await readDir(placesDir, {dir: BaseDirectory.Document});
+        if(fileEntries.length == 0) {
+            return [];
+        }
+        fileEntries.forEach((fileEntry) => {
             readTextFile(fileEntry.path).then((content) => {
                 let place = JSON.parse(content);
                 keys4verify.forEach((key) => {
@@ -72,12 +77,12 @@ async function loadPlaces() {
     return [overworldPlaces, netherPlaces, theEndPlaces];
 }
 
-async function setBackPic(name: string, html: HTMLDivElement) {
+async function setBackPic(name: string, ...htmls: HTMLDivElement[]) {
     let pic = await join(await documentDir(), 'HUstoneWizard', 'images', name + '.png');
     let picExists = await exists(pic);
     if(picExists) {
         let url = convertFileSrc(pic);
-        html.style.backgroundImage = `url(${url})`;
+        htmls.forEach(html => html.style.backgroundImage = `url(${url})`);
     }
     return picExists;
 }
